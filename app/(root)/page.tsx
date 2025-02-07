@@ -1,6 +1,6 @@
 import SearchForm from "@/components/SearchForm";
 import StartupCard, { StartupTypeCard } from "@/components/StartupCard";
-import { STARTUPS_QUERY, PLAYLIST_BY_SLUG_QUERY } from "@/sanity/lib/queries";
+import { STARTUPS_QUERY } from "@/sanity/lib/queries";
 import { sanityFetch, SanityLive } from "@/sanity/lib/live";
 import { auth } from "@/auth";
 
@@ -14,17 +14,9 @@ export default async function Home({
 
   const session = await auth();
 
-  const [{ data: posts }, editorData] = await Promise.all([
-    sanityFetch({ query: STARTUPS_QUERY, params }),
-    sanityFetch({ 
-      query: PLAYLIST_BY_SLUG_QUERY, 
-      params: { slug: "editor-picks" } 
-    }).catch(() => ({ data: null }))
-  ]);
+  console.log(session?.id);
 
-  const editorPicks = editorData?.data?.select || [];
-  console.log("Editor Data:", editorData?.data);
-  console.log("Editor Picks:", editorPicks);
+  const { data: posts } = await sanityFetch({ query: STARTUPS_QUERY, params });
 
   return (
     <>
@@ -41,17 +33,6 @@ export default async function Home({
 
         <SearchForm query={query} />
       </section>
-
-      {editorPicks.length > 0 && (
-        <section className="section_container">
-          <p className="text-30-semibold">Editor's Picks</p>
-          <ul className="mt-7 card_grid">
-            {editorPicks.map((post: StartupTypeCard) => (
-              <StartupCard key={post._id} post={post} />
-            ))}
-          </ul>
-        </section>
-      )}
 
       <section className="section_container">
         <p className="text-30-semibold">
